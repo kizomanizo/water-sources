@@ -1,6 +1,14 @@
 <%- include('partials/header') %>
 
-<% const hasCoordinates = Math.abs(point.longitude) > 0.001 && Math.abs(point.latitude) > 0.001; %>
+<%
+  const hasCoordinates = Math.abs(point.longitude) > 0.001 && Math.abs(point.latitude) > 0.001;
+  const lat = Number(point.latitude).toFixed(6);
+  const lon = Number(point.longitude).toFixed(6);
+  const pad = 0.015;
+  const mapBbox = hasCoordinates
+    ? [Number(lon) - pad, Number(lat) - pad, Number(lon) + pad, Number(lat) + pad].map((n) => n.toFixed(6)).join(',')
+    : '';
+%>
 
 <nav class="breadcrumbs" aria-label="Location">
   <a href="/">All</a>
@@ -28,26 +36,37 @@
 </div>
 
 <div class="cards">
-  <section class="panel">
+  <section class="panel panel--location">
     <h2 class="panel__title">Location</h2>
-    <dl class="details">
-      <dt>Region</dt><dd><%= point.region %> <span class="muted">(code <%= point.region_code %>)</span></dd>
-      <dt>LGA</dt><dd><%= point.lga %> <span class="muted">(district <%= point.district_code %>)</span></dd>
-      <dt>Ward</dt><dd><%= point.ward %></dd>
-      <dt>Subvillage</dt><dd><%= fmt.text(point.subvillage) %></dd>
-      <dt>Basin</dt><dd><%= point.basin %></dd>
-      <dt>Coordinates</dt>
-      <dd>
-        <% if (hasCoordinates) { %>
-          <a href="https://www.openstreetmap.org/?mlat=<%= point.latitude %>&mlon=<%= point.longitude %>#map=14/<%= point.latitude %>/<%= point.longitude %>" target="_blank" rel="noopener">
-            <%= point.latitude.toFixed(5) %>, <%= point.longitude.toFixed(5) %>
-          </a>
-        <% } else { %>
-          Unknown
-        <% } %>
-      </dd>
-      <dt>Altitude</dt><dd><%= point.gps_height ? `${fmt.number(point.gps_height)} m` : 'Unknown' %></dd>
-    </dl>
+    <div class="location">
+      <dl class="details">
+        <dt>Region</dt><dd><%= point.region %> <span class="muted">(code <%= point.region_code %>)</span></dd>
+        <dt>LGA</dt><dd><%= point.lga %> <span class="muted">(district <%= point.district_code %>)</span></dd>
+        <dt>Ward</dt><dd><%= point.ward %></dd>
+        <dt>Subvillage</dt><dd><%= fmt.text(point.subvillage) %></dd>
+        <dt>Basin</dt><dd><%= point.basin %></dd>
+        <dt>Coordinates</dt>
+        <dd>
+          <% if (hasCoordinates) { %>
+            <a href="https://www.openstreetmap.org/?mlat=<%= lat %>&mlon=<%= lon %>#map=15/<%= lat %>/<%= lon %>" target="_blank" rel="noopener">
+              <%= lat %>, <%= lon %>
+            </a>
+          <% } else { %>
+            Unknown
+          <% } %>
+        </dd>
+        <dt>Altitude</dt><dd><%= point.gps_height ? `${fmt.number(point.gps_height)} m` : 'Unknown' %></dd>
+      </dl>
+      <% if (hasCoordinates) { %>
+        <div class="map">
+          <iframe
+            title="Map of <%= point.name %> on OpenStreetMap"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=<%= mapBbox %>&amp;layer=mapnik&amp;marker=<%= lat %>,<%= lon %>"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      <% } %>
+    </div>
   </section>
 
   <section class="panel">

@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<% const tables = objects.filter((o) => o.type === 'table'); %>
+<% const views = objects.filter((o) => o.type === 'view'); %>
+
+<div class="page-head">
+  <div>
+    <h1>Data model</h1>
+    <p class="muted">
+      <%= tables.length %> tables in third normal form. The <code>water_sources</code> view rebuilds the original flat records from them.
+    </p>
+  </div>
+</div>
+
+<div class="cards">
+  <% for (const object of [...tables, ...views]) { %>
+    <section class="panel schema-table" id="<%= object.name %>">
+      <h2 class="panel__title">
+        <%= object.name %>
+        <span class="chip"><%= object.type === 'view' ? 'view' : `${fmt.number(object.rows)} ${object.rows === 1 ? 'row' : 'rows'}` %></span>
+      </h2>
+      <ul class="columns">
+        <% for (const column of object.columns) { %>
+          <li class="columns__item">
+            <span class="columns__name">
+              <%= column.name %>
+              <% if (column.primaryKey) { %><span class="tag tag--pk" title="Primary key">PK</span><% } %>
+              <% if (column.references) { %><span class="tag tag--fk" title="Foreign key">FK</span><% } %>
+            </span>
+            <span class="columns__type muted">
+              <% if (column.references) { %>
+                → <a href="#<%= column.references.split('.')[0] %>"><%= column.references %></a>
+              <% } else { %>
+                <%= (column.type || 'any').toLowerCase() %><%= object.type === 'table' && !column.notNull && !column.primaryKey ? '?' : '' %>
+              <% } %>
+            </span>
+          </li>
+        <% } %>
+      </ul>
+    </section>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

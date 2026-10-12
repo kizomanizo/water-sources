@@ -1,0 +1,20 @@
+{
+  "name": "water-sources",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browse Tanzanian water point records stored in a normalized SQLite database",
+  "main": "src/server.js",
+  "scripts": {
+    "db:build": "node scripts/build-db.js",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "ejs": "^7.0.1",
+    "express": "^5.3.0"
+  }
+}

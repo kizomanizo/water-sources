@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0A369D" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#071433" media="(prefers-color-scheme: dark)">
+  <title><%= title %> · Water Sources</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="/">
+        <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c-.4 0-.8.2-1 .5C8.6 6.4 5 11.3 5 14.8 5 18.8 8.1 22 12 22s7-3.2 7-7.2c0-3.5-3.6-8.4-6-11.8-.2-.3-.6-.5-1-.5Z"/></svg>
+        Water Sources
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="/" <%- currentPath === '/' || currentPath.startsWith('/water-points') ? 'aria-current="page"' : '' %>>Water points</a>
+        <a href="/reference" <%- currentPath === '/reference' ? 'aria-current="page"' : '' %>>Reference data</a>
+        <a href="/schema" <%- currentPath === '/schema' ? 'aria-current="page"' : '' %>>Data model</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container">

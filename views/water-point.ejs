@@ -1,0 +1,103 @@
+<%- include('partials/header') %>
+
+<% const hasCoordinates = Math.abs(point.longitude) > 0.001 && Math.abs(point.latitude) > 0.001; %>
+
+<nav class="breadcrumbs" aria-label="Location">
+  <a href="/">All</a>
+  <span aria-hidden="true">›</span>
+  <a href="/?region=<%= point.region_id %>"><%= point.region %></a>
+  <span aria-hidden="true">›</span>
+  <a href="/?region=<%= point.region_id %>&lga=<%= point.lga_id %>"><%= point.lga %></a>
+  <span aria-hidden="true">›</span>
+  <span><%= point.ward %></span>
+  <% if (point.subvillage) { %>
+    <span aria-hidden="true">›</span>
+    <span><%= point.subvillage %></span>
+  <% } %>
+</nav>
+
+<div class="page-head">
+  <div>
+    <h1><%= point.name %></h1>
+    <p class="muted">Water point #<%= point.id %> · recorded <%= fmt.date(point.date_recorded) %> by <%= point.recorded_by %></p>
+  </div>
+  <div class="page-head__chips">
+    <span class="chip chip--<%= point.quantity %>"><%= point.quantity %></span>
+    <span class="chip"><%= point.quality_group %> quality</span>
+  </div>
+</div>
+
+<div class="cards">
+  <section class="panel">
+    <h2 class="panel__title">Location</h2>
+    <dl class="details">
+      <dt>Region</dt><dd><%= point.region %> <span class="muted">(code <%= point.region_code %>)</span></dd>
+      <dt>LGA</dt><dd><%= point.lga %> <span class="muted">(district <%= point.district_code %>)</span></dd>
+      <dt>Ward</dt><dd><%= point.ward %></dd>
+      <dt>Subvillage</dt><dd><%= fmt.text(point.subvillage) %></dd>
+      <dt>Basin</dt><dd><%= point.basin %></dd>
+      <dt>Coordinates</dt>
+      <dd>
+        <% if (hasCoordinates) { %>
+          <a href="https://www.openstreetmap.org/?mlat=<%= point.latitude %>&mlon=<%= point.longitude %>#map=14/<%= point.latitude %>/<%= point.longitude %>" target="_blank" rel="noopener">
+            <%= point.latitude.toFixed(5) %>, <%= point.longitude.toFixed(5) %>
+          </a>
+        <% } else { %>
+          Unknown
+        <% } %>
+      </dd>
+      <dt>Altitude</dt><dd><%= point.gps_height ? `${fmt.number(point.gps_height)} m` : 'Unknown' %></dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel__title">Infrastructure</h2>
+    <dl class="details">
+      <dt>Water point type</dt><dd><%= point.waterpoint_type %> <span class="muted">· <%= point.waterpoint_type_group %></span></dd>
+      <dt>Extraction</dt><dd><%= point.extraction_type %> <span class="muted">· <%= point.extraction_type_group %> · <%= point.extraction_type_class %></span></dd>
+      <dt>Source</dt><dd><%= point.source %> <span class="muted">· <%= point.source_type %> · <%= point.source_class %></span></dd>
+      <dt>Constructed</dt><dd><%= fmt.year(point.construction_year) %></dd>
+      <dt>Funder</dt><dd><%= fmt.text(point.funder) %></dd>
+      <dt>Installer</dt><dd><%= fmt.text(point.installer) %></dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel__title">Water</h2>
+    <dl class="details">
+      <dt>Quantity</dt><dd><%= point.quantity %></dd>
+      <dt>Quality</dt><dd><%= point.water_quality %> <span class="muted">· <%= point.quality_group %></span></dd>
+      <dt>Population served</dt><dd><%= fmt.number(point.population) %></dd>
+      <dt>Static head</dt><dd><%= fmt.number(point.amount_tsh) %></dd>
+      <dt>Private points</dt><dd><%= fmt.number(point.num_private) %></dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2 class="panel__title">Management</h2>
+    <dl class="details">
+      <dt>Managed by</dt><dd><%= point.management %> <span class="muted">· <%= point.management_group %></span></dd>
+      <dt>Scheme</dt><dd><%= fmt.text(point.scheme_name) %></dd>
+      <dt>Scheme management</dt><dd><%= fmt.text(point.scheme_management) %></dd>
+      <dt>Payment</dt><dd><%= point.payment %> <span class="muted">· <%= point.payment_type %></span></dd>
+      <dt>Permit</dt><dd><%= fmt.yesNo(point.permit) %></dd>
+      <dt>Public meeting</dt><dd><%= fmt.yesNo(point.public_meeting) %></dd>
+    </dl>
+  </section>
+</div>
+
+<% if (neighbours.length) { %>
+  <section class="panel">
+    <h2 class="panel__title">Other water points in <%= point.ward %></h2>
+    <ul class="link-list">
+      <% for (const n of neighbours) { %>
+        <li>
+          <a href="/water-points/<%= n.id %>"><%= n.name %></a>
+          <span class="muted small"><%= n.waterpointType %><%= n.subvillage ? ` · ${n.subvillage}` : '' %></span>
+        </li>
+      <% } %>
+    </ul>
+  </section>
+<% } %>
+
+<%- include('partials/footer') %>

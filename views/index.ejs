@@ -1,0 +1,149 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <h1>Water points</h1>
+    <p class="muted">Browse and filter <%= fmt.number(stats.points) %> recorded water points across Tanzania.</p>
+  </div>
+</div>
+
+<section class="stats" aria-label="Summary">
+  <div class="stat">
+    <span class="stat__label">Water points</span>
+    <span class="stat__value"><%= fmt.number(stats.points) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Population served</span>
+    <span class="stat__value"><%= fmt.number(stats.population) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Regions · wards</span>
+    <span class="stat__value"><%= fmt.number(stats.regions) %> · <%= fmt.number(stats.wards) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Oldest construction</span>
+    <span class="stat__value"><%= fmt.year(stats.oldest) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Latest record</span>
+    <span class="stat__value"><%= fmt.date(stats.latestRecord) %></span>
+  </div>
+</section>
+
+<div class="layout">
+  <aside class="panel filters">
+    <form method="get" action="/" id="filters">
+      <h2 class="panel__title">Filter</h2>
+      <label class="field">
+        <span>Search</span>
+        <input type="search" name="q" value="<%= q %>" placeholder="Name, subvillage, ward or LGA">
+      </label>
+      <% for (const filter of filters) { %>
+        <label class="field">
+          <span><%= filter.label %></span>
+          <select name="<%= filter.key %>" data-filter="<%= filter.key %>">
+            <option value="">All</option>
+            <% for (const option of filter.options) { %>
+              <option value="<%= option.id %>" <%= option.id === filter.value ? 'selected' : '' %>><%= option.name %></option>
+            <% } %>
+          </select>
+        </label>
+      <% } %>
+      <% if (sort !== 'id' || dir !== 'asc') { %>
+        <input type="hidden" name="sort" value="<%= sort %>">
+        <input type="hidden" name="dir" value="<%= dir %>">
+      <% } %>
+      <div class="filters__actions">
+        <button class="button" type="submit">Apply</button>
+        <a class="button button--ghost" href="/">Reset</a>
+      </div>
+    </form>
+
+    <% if (quantities.length) { %>
+      <h2 class="panel__title">Water quantity</h2>
+      <ul class="bars">
+        <% for (const item of quantities) { %>
+          <li class="bars__item">
+            <span class="bars__label"><%= item.name %></span>
+            <span class="bars__track"><span class="bars__fill bars__fill--<%= item.name %>" style="width: <%= (item.points / stats.points * 100).toFixed(1) %>%"></span></span>
+            <span class="bars__value"><%= fmt.number(item.points) %></span>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </aside>
+
+  <section class="panel results">
+    <% if (!rows.length) { %>
+      <div class="empty">
+        <h2>No water points match</h2>
+        <p class="muted">Try removing a filter or changing the search.</p>
+      </div>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <% const headers = [['id', 'ID'], ['name', 'Name'], ['region', 'Location'], [null, 'Type'], [null, 'Quantity'], ['population', 'Population'], ['year', 'Built'], ['recorded', 'Recorded']]; %>
+              <% for (const [key, label] of headers) { %>
+                <% if (key) { %>
+                  <th scope="col" <%- sort === key ? `aria-sort="${dir === 'asc' ? 'ascending' : 'descending'}"` : '' %>>
+                    <a class="sort" href="<%= sortLink(key) %>"><%= label %><span class="sort__icon" aria-hidden="true"><%= sort === key ? (dir === 'asc' ? '▲' : '▼') : '↕' %></span></a>
+                  </th>
+                <% } else { %>
+                  <th scope="col"><%= label %></th>
+                <% } %>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (const row of rows) { %>
+              <tr>
+                <td class="num muted"><%= row.id %></td>
+                <td><a href="/water-points/<%= row.id %>"><%= row.name %></a></td>
+                <td>
+                  <div><%= row.ward %>, <%= row.lga %></div>
+                  <div class="muted small"><%= row.region %><%= row.subvillage ? ` · ${row.subvillage}` : '' %></div>
+                </td>
+                <td>
+                  <div><%= row.waterpointType %></div>
+                  <div class="muted small"><%= row.extractionType %></div>
+                </td>
+                <td><span class="chip chip--<%= row.quantity %>"><%= row.quantity %></span></td>
+                <td class="num"><%= fmt.number(row.population) %></td>
+                <td class="num"><%= fmt.year(row.constructionYear) %></td>
+                <td class="nowrap"><%= fmt.date(row.dateRecorded) %></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <nav class="pagination" aria-label="Pagination">
+        <span class="muted">Page <%= page %> of <%= pages %></span>
+        <div class="pagination__links">
+          <% if (page > 1) { %>
+            <a class="button button--ghost" href="<%= link({ page: 1 }) %>">First</a>
+            <a class="button button--ghost" href="<%= link({ page: page - 1 }) %>">Previous</a>
+          <% } %>
+          <% if (page < pages) { %>
+            <a class="button button--ghost" href="<%= link({ page: page + 1 }) %>">Next</a>
+            <a class="button button--ghost" href="<%= link({ page: pages }) %>">Last</a>
+          <% } %>
+        </div>
+      </nav>
+    <% } %>
+  </section>
+</div>
+
+<script>
+  const form = document.getElementById('filters');
+  form.querySelectorAll('select').forEach((select) => {
+    select.addEventListener('change', () => {
+      if (select.dataset.filter === 'region') form.elements.lga.value = '';
+      form.requestSubmit();
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+
+<div class="page-head">
+  <div>
+    <h1>Reference data</h1>
+    <p class="muted">The lookup tables behind each water point, grouped by hierarchy, with how often each value is used.</p>
+  </div>
+</div>
+
+<div class="cards cards--wide">
+  <% for (const section of sections) { %>
+    <section class="panel">
+      <h2 class="panel__title"><%= section.title %></h2>
+      <div class="table-wrap">
+        <table class="table table--compact">
+          <thead>
+            <tr>
+              <% section.columns.forEach((column, index) => { %>
+                <th scope="col" class="<%= index === section.columns.length - 1 ? 'num' : '' %>"><%= column %></th>
+              <% }) %>
+            </tr>
+          </thead>
+          <tbody>
+            <% section.rows.forEach((row, rowIndex) => { %>
+              <tr>
+                <% row.forEach((cell, index) => { %>
+                  <% const isNumber = typeof cell === 'number'; %>
+                  <% const repeats = !isNumber && index < row.length - 2 && rowIndex > 0 && section.rows[rowIndex - 1].slice(0, index + 1).join('\u0000') === row.slice(0, index + 1).join('\u0000'); %>
+                  <td class="<%= isNumber ? 'num' : '' %> <%= repeats ? 'repeat' : '' %>"><%= isNumber ? fmt.number(cell) : cell %></td>
+                <% }) %>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

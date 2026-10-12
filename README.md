@@ -13,7 +13,7 @@ npm install
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Set `PORT` to listen somewhere else.
+Open [http://localhost:3000](http://localhost:3000). Copy `.env.example` to `.env` and change `PORT` to listen somewhere else.
 
 If `db/water_sources.db` is missing, build it first:
 
